@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="../../webcomponentsjs/webcomponents.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <link rel="import" href="../../polymer/polymer.html">
+    <link rel="import" href="../mod-validating-form.html">
+    
+    <style>
+        mod-validating-form {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<mod-validating-form id="form"
+                     inputSelector="paper-input-decorator,.otherInputs"
+                     submitSelector="#submitBtn"
+                     invalidClass="my-invalid-class">
+    
+    <paper-input-decorator label="Required field" error="Please enter a value">
+        <input is="core-input" type="text" value="" required>
+    </paper-input-decorator>
+    
+    <paper-input-decorator label="Optional field">
+        <input is="core-input" type="text" value="">
+    </paper-input-decorator>
+    
+    <input class="otherInputs" type="text" value="" placeholder="Enter 'OK'" pattern="OK" required>
+    
+    <button id="submitBtn">Submit</button>
+    
+</mod-validating-form>
+    
+<script>
+window.addEventListener('polymer-ready', function(e) {
+    
+    var form;
+    var eventSeries = [];
+    
+    function clearEventSeries() {eventSeries = [];}
+    function fireFormAction(sourceElement) {
+        form.formAction({
+            preventDefault: function(){},
+            target: sourceElement || document.getElementById('submitBtn')
+        });
+    }
+    
+    before(function() {
+        form = document.getElementById('form');
+        form.addEventListener('submit', function(e){eventSeries.push(e);}, false);
+    });
+    
+    describe('<mod-validating-form>', function() {
+        afterEach(function(){
+            Array.prototype.slice.call(document.getElementsByTagName('input')).forEach(function(input){
+                input.value = '';
+            });
+        });
+        describe('getInputs', function() {
+            it('should return 3 inputs', function(){
+                assert.equal(3, form.getInputs().length);
+            });
+        });
+        describe('validate', function() {
+            it('should return false when any input fails validation', function(){
+                assert.notOk(form.validate());
+            });
+            it('should return true when all inputs pass validation', function(){
+                var inputs = document.getElementsByTagName('input');
+                inputs[0].value = 'not empty string';
+                inputs[2].value = 'OK';
+                assert.ok(form.validate());
+            });
+        });
+        describe('validateInput', function() {
+            it('should return false when validation fails', function(){
+                assert.notOk(form.validateInput(form.getInputs()[0]));
+            });
+            it('should add <invalidClass> if validation fails', function(){
+                var input = form.getInputs()[2];
+                assert.notOk(form.validateInput(input));
+                assert.isTrue(input.classList.contains('my-invalid-class'));
+            });
+            it('should return true when validation is successful', function(){
+                document.getElementsByTagName('input')[0].value = 'not empty string';
+                assert.ok(form.validateInput(form.getInputs()[0]));
+            });
+            it('should remove <invalidClass> when validation is successful', function(){
+                var input = form.getInputs()[2];
+                input.value = 'OK';
+                assert.ok(form.validateInput(input));
+                assert.isFalse(input.classList.contains('my-invalid-class'));
+            });
+        });
+        describe('formAction', function() {
+            before(function(done){
+                form.disabled = true;
+                fireFormAction();
+                setTimeout(done, 100);
+            });
+            it('should do nothing if the form is disabled', function(done){
+                assert.equal(0, eventSeries.length);
+                form.disabled = false;
+                fireFormAction();
+                setTimeout(done, 100);
+            });
+            it('should do nothing if the form does not pass validation', function(done){
+                assert.equal(0, eventSeries.length);
+                var inputs = document.getElementsByTagName('input');
+                inputs[0].value = inputs[2].value = 'OK';
+                fireFormAction();
+                setTimeout(done, 100);
+            });
+            it('should fire "submit" event when validation passes', function(){
+                assert.equal(1, eventSeries.length);
+                assert.equal('submit', eventSeries[0].type);
+            });
+            after(function(){
+                form.disabled = false;
+                clearEventSeries();
+            });
+        });
+    });
+
+});
+</script>
+</body>
+</html>

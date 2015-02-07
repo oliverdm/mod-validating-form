@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>mod-form demo</title>
+    
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <script src="https://www.polymer-project.org/components/webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="https://www.polymer-project.org/components/polymer/polymer.html">
+    <link rel="import" href="https://www.polymer-project.org/components/paper-input/paper-input-decorator.html">
+    <link rel="import" href="mod-validating-form.html">
+    
+    <style>
+        html, body {
+            font-family: Arial, sans-serif;
+        }
+        mod-validating-form {
+            display: block;
+            min-width: 260px;
+            max-width: 600px;
+        }
+        .otherInputs.invalid {
+            border: 1px solid #f33;
+        }
+    </style>
+</head>
+<body unresolved>
+    
+<h4>Demo form</h4>
+    
+<mod-validating-form id="form"
+                     inputSelector="paper-input-decorator,.otherInputs"
+                     submitSelector="#submitBtn"
+                     invalidClass="invalid">
+    
+    <paper-input-decorator label="Required field" error="Please enter a value">
+        <input is="core-input" type="text" value="" required>
+    </paper-input-decorator>
+    
+    <paper-input-decorator label="Optional field">
+        <input is="core-input" type="text" value="">
+    </paper-input-decorator>
+    
+    <paper-input-decorator label="Required number field" error="Please enter a number">
+        <input is="core-input" type="text" pattern="^\d+$" required>
+    </paper-input-decorator>
+    
+    <label>Plain input: </label>
+    <input class="otherInputs" type="text" value="" placeholder="Enter 'OK'" pattern="OK" required>
+    
+    <p>
+        <button id="submitBtn">Submit</button>
+        <button id="clearBtn">Clear errors</button>
+        <button id="enableBtn" disabled>Re-enable form</button>
+    </p>
+    
+</mod-validating-form>
+
+<script>
+window.addEventListener('polymer-ready', function(e) {
+    var form = document.getElementById('form'),
+        submitBtn = document.getElementById('submitBtn'),
+        clearBtn = document.getElementById('clearBtn'),
+        enableBtn = document.getElementById('enableBtn');
+    form.addEventListener('submit', function(){
+        alert('Form submitted');
+        submitBtn.disabled = clearBtn.disabled = true;
+        enableBtn.disabled = false;
+    }, false);
+    clearBtn.addEventListener('click', function(){
+        form.clearErrors();
+    }, false);
+    enableBtn.addEventListener('click', function(){
+        form.disabled = false;
+        submitBtn.disabled = clearBtn.disabled = false;
+        enableBtn.disabled = true;
+    });
+});
+</script>
+</body>
+</html>
