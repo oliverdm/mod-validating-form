@@ -16,68 +16,75 @@
         html, body {
             font-family: Arial, sans-serif;
         }
-        mod-validating-form {
-            display: block;
-            min-width: 260px;
-            max-width: 600px;
-        }
-        .otherInputs.invalid {
-            border: 1px solid #f33;
-        }
+        
     </style>
 </head>
 <body unresolved>
     
 <h4>Demo form</h4>
-    
+
+<polymer-element name="demo-form">
+<template>
+<style>
+mod-validating-form {
+    display: block;
+    min-width: 260px;
+    max-width: 600px;
+}
+.otherInputs.invalid {
+    border: 1px solid #f33;
+}
+</style>
 <mod-validating-form id="form"
                      inputSelector="paper-input-decorator,.otherInputs"
                      submitSelector="#submitBtn"
-                     invalidClass="invalid">
+                     invalidClass="invalid"
+                     on-submit="{{ formSubmit }}">
     
-    <paper-input-decorator label="Required field" error="Please enter a value">
-        <input is="core-input" type="text" value="" required>
+    <paper-input-decorator label="Required field" error="Please enter a value" disabled?="{{ $.form.disabled }}">
+        <input is="core-input" type="text" value="" required readonly?="{{ $.form.disabled }}">
     </paper-input-decorator>
     
-    <paper-input-decorator label="Optional field">
-        <input is="core-input" type="text" value="">
+    <paper-input-decorator label="Optional field" disabled?="{{ $.form.disabled }}">
+        <input is="core-input" type="text" value="" readonly?="{{ $.form.disabled }}">
     </paper-input-decorator>
     
-    <paper-input-decorator label="Required number field" error="Please enter a number">
-        <input is="core-input" type="text" pattern="^\d+$" required>
+    <paper-input-decorator label="Required number field" error="Please enter a number" disabled?="{{ $.form.disabled }}">
+        <input is="core-input" type="text" pattern="^\d+$" required readonly?="{{ $.form.disabled }}">
     </paper-input-decorator>
     
     <label>Plain input: </label>
-    <input class="otherInputs" type="text" value="" placeholder="Enter 'OK'" pattern="OK" required>
+    <input class="otherInputs" type="text" value="" placeholder="Enter 'OK'" pattern="OK" required readonly?="{{ $.form.disabled }}">
     
     <p>
-        <button id="submitBtn">Submit</button>
-        <button id="clearBtn">Clear errors</button>
-        <button id="enableBtn" disabled>Re-enable form</button>
+        <button id="submitBtn" disabled?="{{ $.form.disabled }}">Submit</button>
+        <button id="clearBtn" on-tap="{{ clearErrors }}" disabled?="{{ $.form.disabled }}">Clear errors</button>
+        <button id="enableBtn" on-tap="{{ enableForm }}" disabled?="{{ !$.form.disabled }}">Re-enable form</button>
     </p>
     
 </mod-validating-form>
-
+    
+</template>
 <script>
-window.addEventListener('polymer-ready', function(e) {
-    var form = document.getElementById('form'),
-        submitBtn = document.getElementById('submitBtn'),
-        clearBtn = document.getElementById('clearBtn'),
-        enableBtn = document.getElementById('enableBtn');
-    form.addEventListener('submit', function(){
+Polymer({
+    
+    formSubmit: function(){
         alert('Form submitted');
-        submitBtn.disabled = clearBtn.disabled = true;
-        enableBtn.disabled = false;
-    }, false);
-    clearBtn.addEventListener('click', function(){
-        form.clearErrors();
-    }, false);
-    enableBtn.addEventListener('click', function(){
-        form.disabled = false;
-        submitBtn.disabled = clearBtn.disabled = false;
-        enableBtn.disabled = true;
-    });
+    },
+    
+    clearErrors: function(){
+        this.$.form.clearErrors();
+    },
+    
+    enableForm: function(){
+        this.$.form.disabled = false;
+    }
+    
 });
 </script>
+</polymer-element>
+
+<demo-form></demo-form>
+
 </body>
 </html>
