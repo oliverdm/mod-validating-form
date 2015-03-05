@@ -80,11 +80,8 @@ Polymer({
      */
     formAction: function(e) {
         e.preventDefault();
-        if (this.disabled) {
-            return;
-        }
         // submit button pressed
-        else if (e.target && this.submitSelector && e.target.matches(this.submitSelector)) {
+        if (e.target && this.submitSelector && e.target.matches(this.submitSelector)) {
             this.submit(true);
         }
     },
@@ -95,10 +92,10 @@ Polymer({
      * @param {object} e the change event
      */
     formChange: function(e) {
-        // find input that triggered the changed
+        // find input that triggered the change
         var inputs = this.getInputs();
         var target;
-        (Array.prototype.slice.call(e.path)).some(function(el){
+        Array.prototype.slice.call(e.path).some(function(el){
             target = el;
             return inputs.some(function(input){return el === input;});
         });
@@ -110,7 +107,7 @@ Polymer({
      * @param {boolean} validate if true the form is validated before submitting
      */
     submit: function(validate) {
-        if (!validate || this.validate()) {
+        if (!this.disabled && (!validate || this.validate())) {
             this.disabled = true;
             this.fire('submit');
         }
