@@ -1,6 +1,9 @@
 {
     "name": "mod-validating-form",
-    "private": true,
+    "version": "0.1.1",
+    "main": "mod-validating-form.html",
+    "ignore": ["test", "demo.html", "README.md", ".gitignore"],
+    "keywords": ["form", "validation", "component"],
     "dependencies": {
         "polymer": "Polymer/polymer#^0.5.2",
         "webcomponentsjs": "Polymer/webcomponentsjs#^0.5.2"
@@ -8,5 +11,5 @@
     "devDependencies": {
         "web-component-tester": "Polymer/web-component-tester#^2.0.0"
     },
-    "version": "0.1.0"
+    "private": false
 }
