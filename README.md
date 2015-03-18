@@ -1,4 +1,4 @@
-# mod-validating-form
+# odm-validating-form
 
 A container for `paper-input-decorator` or `input` elements that validates contained inputs when the form is submitted.
 Implemented as web component using [Google Polymer](https://www.polymer-project.org).
@@ -10,12 +10,12 @@ Implemented as web component using [Google Polymer](https://www.polymer-project.
  * Prevents resubmission of the form
 
 ### Demo
-[Simple form with paper-input-decorator and input elements](http://oliverdm.github.io/mod-validating-form/demo.html)
+[Simple form with paper-input-decorator and input elements](http://oliverdm.github.io/odm-validating-form/demo.html)
 
 ### Example
 
 ```
-<mod-validating-form inputSelector="paper-input-decorator"
+<odm-validating-form inputSelector="paper-input-decorator"
                      submitSelector="#submitBtn"
                      on-submit="{{ formSubmit }}">
     
@@ -29,7 +29,7 @@ Implemented as web component using [Google Polymer](https://www.polymer-project.
     
   <button id="submitBtn">Submit</button>
   
-</mod-validating-form>
+</odm-validating-form>
 ...
 Polymer({
   

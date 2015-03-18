@@ -5,17 +5,17 @@
     <script src="../../webcomponentsjs/webcomponents.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
     <link rel="import" href="../../polymer/polymer.html">
-    <link rel="import" href="../mod-validating-form.html">
+    <link rel="import" href="../odm-validating-form.html">
     
     <style>
-        mod-validating-form {
+        odm-validating-form {
             visibility: hidden;
         }
     </style>
 </head>
 <body>
 
-<mod-validating-form id="form"
+<odm-validating-form id="form"
                      inputSelector="paper-input-decorator,.otherInputs"
                      submitSelector="#submitBtn"
                      invalidClass="my-invalid-class">
@@ -32,7 +32,7 @@
     
     <button id="submitBtn">Submit</button>
     
-</mod-validating-form>
+</odm-validating-form>
     
 <script>
 window.addEventListener('polymer-ready', function(e) {
@@ -53,7 +53,7 @@ window.addEventListener('polymer-ready', function(e) {
         form.addEventListener('submit', function(e){eventSeries.push(e);}, false);
     });
     
-    describe('<mod-validating-form>', function() {
+    describe('<odm-validating-form>', function() {
         afterEach(function(){
             Array.prototype.slice.call(document.getElementsByTagName('input')).forEach(function(input){
                 input.value = '';

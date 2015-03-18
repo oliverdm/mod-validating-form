@@ -2,21 +2,20 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>mod-form demo</title>
+    <title>odm-validating-form demo</title>
     
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
-    <script src="https://www.polymer-project.org/components/webcomponentsjs/webcomponents.js"></script>
-    <link rel="import" href="https://www.polymer-project.org/components/polymer/polymer.html">
-    <link rel="import" href="https://www.polymer-project.org/components/paper-input/paper-input-decorator.html">
-    <link rel="import" href="mod-validating-form.html">
+    <script src="//www.polymer-project.org/0.5/components/webcomponentsjs/webcomponents.min.js"></script>
+    <link rel="import" href="//www.polymer-project.org/0.5/components/polymer/polymer.html">
+    <link rel="import" href="//www.polymer-project.org/0.5/components/paper-input/paper-input-decorator.html">
+    <link rel="import" href="odm-validating-form.html">
     
     <style>
         html, body {
             font-family: Arial, sans-serif;
         }
-        
     </style>
 </head>
 <body unresolved>
@@ -26,35 +25,38 @@
 <polymer-element name="demo-form">
 <template>
 <style>
-mod-validating-form {
+odm-validating-form {
     display: block;
     min-width: 260px;
     max-width: 600px;
 }
-.otherInputs.invalid {
+input.invalid {
+    padding: 2px;
     border: 1px solid #f33;
 }
 </style>
-<mod-validating-form id="form"
-                     inputSelector="paper-input-decorator,.otherInputs"
+<odm-validating-form id="form"
+                     inputSelector="paper-input-decorator,input:not([is])"
                      submitSelector="#submitBtn"
                      invalidClass="invalid"
                      on-submit="{{ formSubmit }}">
     
-    <paper-input-decorator label="Required field" error="Please enter a value" disabled?="{{ $.form.disabled }}">
+    <paper-input-decorator label="Required field" error="Please enter some text" disabled?="{{ $.form.disabled }}">
         <input is="core-input" type="text" value="" required readonly?="{{ $.form.disabled }}">
     </paper-input-decorator>
     
     <paper-input-decorator label="Optional field" disabled?="{{ $.form.disabled }}">
-        <input is="core-input" type="text" value="" readonly?="{{ $.form.disabled }}">
+        <input is="core-input" type="text" value="" readonly?="{{ $.form.disabled }}" flex>
     </paper-input-decorator>
     
     <paper-input-decorator label="Required number field" error="Please enter a number" disabled?="{{ $.form.disabled }}">
-        <input is="core-input" type="text" pattern="^\d+$" required readonly?="{{ $.form.disabled }}">
+        <input is="core-input" type="text" value="" pattern="^\d+$" required readonly?="{{ $.form.disabled }}">
     </paper-input-decorator>
     
-    <label>Plain input: </label>
-    <input class="otherInputs" type="text" value="" placeholder="Enter 'OK'" pattern="OK" required readonly?="{{ $.form.disabled }}">
+    <p>
+        <label>Plain input</label>
+        <input type="text" value="" placeholder="Please enter 'OK'" pattern="OK" required readonly?="{{ $.form.disabled }}">
+    </p>
     
     <p>
         <button id="submitBtn" disabled?="{{ $.form.disabled }}">Submit</button>
@@ -62,7 +64,7 @@ mod-validating-form {
         <button id="enableBtn" on-tap="{{ enableForm }}" disabled?="{{ !$.form.disabled }}">Re-enable form</button>
     </p>
     
-</mod-validating-form>
+</odm-validating-form>
     
 </template>
 <script>

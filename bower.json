@@ -1,7 +1,7 @@
 {
-    "name": "mod-validating-form",
-    "version": "0.1.1",
-    "main": "mod-validating-form.html",
+    "name": "odm-validating-form",
+    "version": "0.2.1",
+    "main": "odm-validating-form.html",
     "ignore": ["test", "demo.html", "README.md", ".gitignore"],
     "keywords": ["form", "validation", "component"],
     "dependencies": {
