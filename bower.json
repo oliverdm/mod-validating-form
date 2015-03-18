@@ -1,9 +1,15 @@
 {
     "name": "odm-validating-form",
+    "description": "Container for input and paper-input-decorator elements that validates all inputs when the form is submitted. Web component for Polymer.",
     "version": "0.2.1",
     "main": "odm-validating-form.html",
     "ignore": ["test", "demo.html", "README.md", ".gitignore"],
-    "keywords": ["form", "validation", "component"],
+    "keywords": ["form", "validation"],
+    "url": "http://github.com/oliverdm/odm-validating-form",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/oliverdm/odm-validating-form.git"
+    },
     "dependencies": {
         "polymer": "Polymer/polymer#^0.5.2",
         "webcomponentsjs": "Polymer/webcomponentsjs#^0.5.2"
