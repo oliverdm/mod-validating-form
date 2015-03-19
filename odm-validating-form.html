@@ -1,0 +1,173 @@
+
+<polymer-element name="odm-validating-form"
+                 attributes="disabled inputSelector submitSelector invalidClass">
+<template>
+    <div id="container" on-tap="{{ formAction }}" on-change="{{ formChange }}">
+        <content select="*"></content>
+    </div>
+</template>
+<script>
+Polymer({
+    
+    /**
+     * Fired when the form is submitted.
+     * The form disables itself before the event is fired to prevent re-submits.
+     * It can be manually enabled again using <code>disabled</code> property.
+     *
+     * @event submit
+     */
+    
+    /**
+     * If this property is true, the form cannot be submitted.
+     * This property has <u>no effect</u> on the disabled state of input
+     * elements.
+     * It only prevents the <code>submit</code> event from being fired.
+     *
+     * @attribute disabled
+     * @type boolean
+     * @default false
+     */
+    disabled: false,
+
+    /**
+     * A selector that selects one or more input elements. Supported elements
+     * are:
+     * <ul>
+     * <li>input</li>
+     * <li>paper-input-decorator</li>
+     * </ul>
+     *
+     * @attribute inputSelector
+     * @type string
+     * @default ""
+     */
+    inputSelector: '',
+
+    /**
+     * A selector that selects a single element that submits the form if
+     * clicked/tapped.
+     *
+     * @attribute submitSelector
+     * @type string
+     * @default ""
+     */
+    submitSelector: '',
+    
+    /**
+     * Optional class that is added and removed from input elements depending
+     * on validation result of the element.
+     * 
+     * @attribute invalidClass
+     * @type string
+     * @default ""
+     */
+    invalidClass: '',
+
+    /**
+     * Returns all element that match the <code>inputSelector</code>.
+     * @returns {Array}
+     */
+    getInputs: function() {
+        return (this.inputSelector &&
+            Array.prototype.slice.call(this.querySelectorAll(this.inputSelector))
+        ) || [];
+    },
+
+    /**
+     * Handles the <code>tap</code> event. If the target element matches the
+     * <code>submitSelector</code> the form is validated and submitted if valid.
+     * @param {object} e the click event
+     */
+    formAction: function(e) {
+        e.preventDefault();
+        // submit button pressed
+        if (e.target && this.submitSelector && e.target.matches(this.submitSelector)) {
+            this.submit(true);
+        }
+    },
+    
+    /**
+     * Handles the <code>change</code> event. Validates the input element that
+     * triggered the change event.
+     * @param {object} e the change event
+     */
+    formChange: function(e) {
+        // find input that triggered the change
+        var inputs = this.getInputs();
+        var target;
+        Array.prototype.slice.call(e.path).some(function(el){
+            target = el;
+            return inputs.some(function(input){return el === input;});
+        });
+        target && this.validateInput(target);
+    },
+    
+    /**
+     * Submits the form. A submitted form fired the <code>submit</code> event.
+     * @param {boolean} validate if true the form is validated before submitting
+     */
+    submit: function(validate) {
+        if (!this.disabled && (!validate || this.validate())) {
+            this.disabled = true;
+            this.fire('submit');
+        }
+    },
+
+    /**
+     * Validates all form inputs. All inputs have to pass validation for the
+     * form to be valid.
+     * @returns {Boolean} true if all inputs are valid, otherwise false
+     */
+    validate: function() {
+        var valid = true;
+        this.getInputs().forEach(function(input){
+            valid &= this.validateInput(input);
+        }, this);
+        return valid;
+    },
+    
+    /**
+     * Validates a single input element.
+     * @param {object} input the input element, either <code>input</code> or
+     * <code>paper-input-decorator</code>
+     * @returns {Boolean} true if the input is valid or if the input element is
+     * not recognized as a valid input element, otherwise false
+     */
+    validateInput: function(input) {
+        if (input && 'nodeName' in input) {
+            var valid = null;
+            switch (input.nodeName) {
+                case 'PAPER-INPUT-DECORATOR':
+                    valid = input.querySelector('input').validity.valid;
+                    input.isInvalid = !valid;
+                    break;
+                case 'INPUT':
+                    valid = input.validity.valid;
+                    break;
+            }
+            if (valid !== null) {
+                this.invalidClass && input.classList.toggle(this.invalidClass, !valid);
+                return valid;
+            }
+        }
+        return true;
+    },
+    
+    /**
+     * Removes <code>invalidClass</code> from input elements.
+     * For <code>paper-inputer-decorator</code> elements the
+     * <code>isInvalid</code> property is set to false.
+     * The input value is not changed.
+     */
+    clearErrors: function(){
+        this.getInputs().forEach(function(input){
+            if (input.nodeName === 'PAPER-INPUT-DECORATOR') {
+                input.isInvalid = false;
+            }
+            this.invalidClass && input.classList.toggle(this.invalidClass, false);
+        }, this);
+    }
+    
+});
+</script>
+</polymer-element>
