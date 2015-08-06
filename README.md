@@ -1,7 +1,7 @@
 # odm-validating-form
 
-A container for `paper-input-decorator` or `input` elements that validates contained inputs when the form is submitted.
-Implemented as web component using [Google Polymer](https://www.polymer-project.org).
+A container for `input` or `paper-input` elements that validates inputs when the form is submitted.
+Implemented as web component using [Google Polymer 1.0](https://www.polymer-project.org).
 
 ### Features
 
@@ -9,30 +9,33 @@ Implemented as web component using [Google Polymer](https://www.polymer-project.
  * Validates input elements individually when `change` event is triggered
  * Prevents resubmission of the form
 
-### Demo
-[Simple form with paper-input-decorator and input elements](http://oliverdm.github.io/odm-validating-form/demo.html)
+### Demo & Example
 
-### Example
+[Demo](http://oliverdm.github.io/odm-validating-form/demo.html)
 
 ```
-<odm-validating-form inputSelector="paper-input-decorator"
-                     submitSelector="#submitBtn"
-                     on-submit="{{ formSubmit }}">
+<odm-validating-form input-selector="paper-input-container"
+                     submit-selector="#submitBtn"
+                     on-submit="formSubmit">
     
-  <paper-input-decorator label="Required field" error="Please enter a value">
-    <input is="core-input" type="text" value="" required>
+  <paper-input-container>
+    <label>Required field</label>
+    <input is="iron-input" type="text" value="" required>
+    <paper-input-error>Please enter a value</paper-input-error>
   </paper-input-decorator>
     
-  <paper-input-decorator label="Optional field">
-    <input is="core-input" type="text" value="">
-  </paper-input-decorator>
+  <paper-input-container>
+    <label>Optional field</label<
+    <input is="iron-input" type="text" value="">
+  </paper-input-container>
     
   <button id="submitBtn">Submit</button>
   
 </odm-validating-form>
 ...
 Polymer({
-  
+  is: 'my-custom-element',
+
   formSubmit: function(){
     // form is valid and submitted
   }
@@ -42,24 +45,26 @@ Polymer({
 
 ### API
 
-More documentation in the source code...
+All properties are also available as attributes of the element when the name is converted (camelCase to dash, e.g. `inputSelector -> input-selector`).
+Only changes to the `disabled` property are reflected back to HTML.
+
+More documentation is available in the source code.
 
 ##### `disabled` (property)
 
 Enables or disables the form.
 Disabled forms cannot be submitted.
 Does not change disabled state of input elements.
+Reflected back to HTML.
 
 ##### `inputSelector` (property)
 
-CSS selector that selects one or more input elements that are going to be validated.
+CSS selector that selects one or more input elements that should be validated.
 Required.
-
-Note: `paper-input-decorator` and `input` should not be used together in one selector as it can result in duplicate selection of `input` elements underlying `paper-input-decorator`.
 
 ##### `submitSelector` (property)
 
-CSS selector that selects a single element that triggers a `tap` event to signal form submission, `button` or `paper-button` for example.
+CSS selector that selects a single element that triggers a `tap`-like event to signal form submission, `button` or `paper-button` for example.
 Required.
 
 ##### `invalidClass` (property)
@@ -68,8 +73,8 @@ Optional class name that is added to each input element that fails validation (a
 
 ##### `clearErrors()` (method)
 
-Removes `invalidClass` from all input elements and sets `paper-input-decorator.isInvalid = false`.
-Does not change the actual value of the input.
+Removes `invalidClass` from all input elements.
+Does not change the value of the input.
 
 ##### `submit` (event)
 
