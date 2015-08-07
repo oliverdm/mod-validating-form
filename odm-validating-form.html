@@ -1,76 +1,92 @@
+<!--<link rel="import" href="../polymer/polymer.html">-->
 
-<polymer-element name="odm-validating-form"
-                 attributes="disabled inputSelector submitSelector invalidClass">
+<dom-module id="odm-validating-form">
+
 <template>
-    <div id="container" on-tap="{{ formAction }}" on-change="{{ formChange }}">
-        <content select="*"></content>
-    </div>
+<div id="container" on-tap="formAction" on-change="formChange">
+    <content select="*"></content>
+</div>
 </template>
+
 <script>
 Polymer({
+    is: 'odm-validating-form',
+    properties: {
+        
+        /**
+         * Fired when the form is submitted.
+         * The form disables itself before the event is fired to prevent re-submits.
+         * It can be manually enabled again using <code>disabled</code> property.
+         *
+         * @event submit
+         */
+        
+        /**
+         * If this property is true, the form cannot be submitted.
+         * This property has <u>no effect</u> on the disabled state of input
+         * elements.
+         * It only prevents the <code>submit</code> event from being fired.
+         *
+         * @attribute disabled
+         * @type boolean
+         * @default false
+         */
+        disabled: {
+            value: false,
+            reflectToAttribute: true
+        },
+        
+        /**
+         * A selector that selects one or more input elements. Supported elements
+         * are:
+         * <ul>
+         * <li>input</li>
+         * <li>paper-input-decorator</li>
+         * </ul>
+         *
+         * @attribute inputSelector
+         * @type string
+         * @default ""
+         */
+        inputSelector: String,
+        
+        /**
+         * A selector that selects a single element that submits the form if
+         * clicked/tapped.
+         *
+         * @attribute submitSelector
+         * @type string
+         * @default ""
+         */
+        submitSelector: String,
+        
+        /**
+         * Optional class that is added and removed from input elements depending
+         * on validation result of the element.
+         * 
+         * @attribute invalidClass
+         * @type string
+         * @default ""
+         */
+        invalidClass: String
+    },
     
-    /**
-     * Fired when the form is submitted.
-     * The form disables itself before the event is fired to prevent re-submits.
-     * It can be manually enabled again using <code>disabled</code> property.
-     *
-     * @event submit
-     */
-    
-    /**
-     * If this property is true, the form cannot be submitted.
-     * This property has <u>no effect</u> on the disabled state of input
-     * elements.
-     * It only prevents the <code>submit</code> event from being fired.
-     *
-     * @attribute disabled
-     * @type boolean
-     * @default false
-     */
-    disabled: false,
-
-    /**
-     * A selector that selects one or more input elements. Supported elements
-     * are:
-     * <ul>
-     * <li>input</li>
-     * <li>paper-input-decorator</li>
-     * </ul>
-     *
-     * @attribute inputSelector
-     * @type string
-     * @default ""
-     */
-    inputSelector: '',
-
-    /**
-     * A selector that selects a single element that submits the form if
-     * clicked/tapped.
-     *
-     * @attribute submitSelector
-     * @type string
-     * @default ""
-     */
-    submitSelector: '',
-    
-    /**
-     * Optional class that is added and removed from input elements depending
-     * on validation result of the element.
-     * 
-     * @attribute invalidClass
-     * @type string
-     * @default ""
-     */
-    invalidClass: '',
-
     /**
      * Returns all element that match the <code>inputSelector</code>.
      * @returns {Array}
      */
     getInputs: function() {
-        return (this.inputSelector &&
-            Array.prototype.slice.call(this.querySelectorAll(this.inputSelector))
-        ) || [];
+        if (!this.inputSelector) {
+            return [];
+        }
+        var elements = [];
+        Array.prototype.slice.call(Polymer.dom(this).querySelectorAll(this.inputSelector)).forEach(function(el){
+            // exclude extended elements
+            if (!el.hasAttribute('is')) {
+                elements.push(el);
+            }
+        });
+        return elements;
     },
 
     /**
@@ -80,10 +96,48 @@ Polymer({
      */
     formAction: function(e) {
         e.preventDefault();
-        // submit button pressed
-        if (e.target && this.submitSelector && e.target.matches(this.submitSelector)) {
+        var target = Polymer.dom(e).localTarget || e.target;
+        if (this.matchesSelector(target, this.submitSelector)) {
+            // submit button pressed
             this.submit(true);
         }
+    },
+    
+    /**
+     * Tests if the element is matched by the selector.
+     * @param {type} element the element
+     * @param {type} selector the selector
+     * @returns {Boolean} true if the element is matched by the selector,
+     * otherwise false
+     */
+    matchesSelector: function(element, selector){
+        if (!element || !selector) {
+            return false;
+        }
+        // standard name
+        if (element.matches) {
+            return element.matches(selector);
+        }
+        // prefixed names
+        var prefixes = ['', 'moz', 'ms', 'o', 'webkit'];
+        for (var i = 0, len = prefixes.length; i < len; i++) {
+            var prefix = prefixes[i];
+            var fn = 'matchesSelector';
+            if (prefix) {
+                fn = prefix + fn.charAt(0).toUpperCase() + fn.substring(1);
+            }
+            if (element[fn]) {
+                return element[fn](selector);
+            }
+        }
+        // polyfill as fallback
+        // https://developer.mozilla.org/en/docs/Web/API/Element/matches#Polyfill
+        var matches = (element.document || element.ownerDocument).querySelectorAll(selector);
+        var i = 0;
+        while (matches[i] && matches[i] !== element) {
+            i++;
+        }
+        return matches[i] ? true : false;
     },
     
     /**
@@ -94,22 +148,41 @@ Polymer({
     formChange: function(e) {
         // find input that triggered the change
         var inputs = this.getInputs();
-        var target;
-        Array.prototype.slice.call(e.path).some(function(el){
-            target = el;
-            return inputs.some(function(input){return el === input;});
-        });
-        target && this.validateInput(target);
+        var target = Polymer.dom(e).localTarget || e.target;
+        if (!target || inputs.indexOf(target) === -1) {
+            Array.prototype.slice.call(Polymer.dom(e).path).some(function(el){
+                target = el;
+                return inputs.indexOf(el) !== -1;
+            });
+        }
+        if (target) {
+            this.validateInput(target);
+        }
     },
     
     /**
-     * Submits the form. A submitted form fired the <code>submit</code> event.
+     * Submits the form and fires the <code>submit</code> event if validation
+     * passes and the form is not disabled.
+     * Once submitted the form disables itself.
      * @param {boolean} validate if true the form is validated before submitting
      */
     submit: function(validate) {
         if (!this.disabled && (!validate || this.validate())) {
-            this.disabled = true;
-            this.fire('submit');
+            var disabledPrevented = false;
+            this.fire('submit', {
+                preventDisabled: function(){
+                    disabledPrevented = true;
+                }
+            }, {
+                node: this,
+                bubbles: true,
+                cancelable: true
+            });
+            // set disabled after firing the event
+            // otherwise IE11 wont fire the event when disabled
+            if (!disabledPrevented) {
+                this.disabled = true;
+            }
         }
     },
 
@@ -128,25 +201,46 @@ Polymer({
     
     /**
      * Validates a single input element.
-     * @param {object} input the input element, either <code>input</code> or
-     * <code>paper-input-decorator</code>
+     * @param {object} element the input element
      * @returns {Boolean} true if the input is valid or if the input element is
      * not recognized as a valid input element, otherwise false
      */
-    validateInput: function(input) {
-        if (input && 'nodeName' in input) {
+    validateInput: function(element) {
+        if (element && 'nodeName' in element) {
             var valid = null;
-            switch (input.nodeName) {
-                case 'PAPER-INPUT-DECORATOR':
-                    valid = input.querySelector('input').validity.valid;
-                    input.isInvalid = !valid;
-                    break;
-                case 'INPUT':
-                    valid = input.validity.valid;
-                    break;
+            // paper-input and similar
+            if (typeof element.invalid !== 'undefined') {
+                if (element.autoValidate === false) {
+                    // find validate() function if not auto-validating
+                    if (Object.prototype.toString.call(element.validate) === '[object Function]') {
+                        element.validate();
+                    } else {
+                        // simulate a validate function, e.g. for paper-input-container
+                        var input = Polymer.dom(element).querySelector('input,textarea,.paper-input-input');
+                        if (input && input.validate) {
+                            element.invalid = !input.validate(element.value);
+                        }
+                        else if (input) {
+                            element.invalid = !input.checkValidity();
+                        }
+                        if (element.updateAddons) {
+                            element.updateAddons({
+                                inputElement: input,
+                                invalid: element.invalid
+                            });
+                        }
+                    }
+                }
+                valid = !element.invalid;
+            }
+            // raw input elements
+            else if (typeof element.validity !== 'undefined') {
+                valid = element.validity.valid;
             }
             if (valid !== null) {
-                this.invalidClass && input.classList.toggle(this.invalidClass, !valid);
+                if (this.invalidClass) {
+                    element.classList[valid ? 'remove' : 'add'](this.invalidClass);
+                }
                 return valid;
             }
         }
@@ -155,19 +249,24 @@ Polymer({
     
     /**
      * Removes <code>invalidClass</code> from input elements.
-     * For <code>paper-inputer-decorator</code> elements the
-     * <code>isInvalid</code> property is set to false.
      * The input value is not changed.
      */
     clearErrors: function(){
-        this.getInputs().forEach(function(input){
-            if (input.nodeName === 'PAPER-INPUT-DECORATOR') {
-                input.isInvalid = false;
+        this.getInputs().forEach(function(element){
+            if (typeof element.invalid !== 'undefined') {
+                element.invalid = false;
+                if (element.updateAddons) {
+                    element.updateAddons({
+                        invalid: element.invalid
+                    });
+                }
             }
-            this.invalidClass && input.classList.toggle(this.invalidClass, false);
+            if (this.invalidClass) {
+                element.classList.remove(this.invalidClass);
+            }
         }, this);
     }
-    
 });
 </script>
-</polymer-element>
+    
+</dom-module>

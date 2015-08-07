@@ -7,13 +7,15 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
-    <script src="//www.polymer-project.org/0.5/components/webcomponentsjs/webcomponents.min.js"></script>
-    <link rel="import" href="//www.polymer-project.org/0.5/components/polymer/polymer.html">
-    <link rel="import" href="//www.polymer-project.org/0.5/components/paper-input/paper-input-decorator.html">
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="bower_components/polymer/polymer.html">
+    <link rel="import" href="bower_components/paper-input/paper-input-container.html">
+    <link rel="import" href="bower_components/paper-input/paper-input-error.html">
     <link rel="import" href="odm-validating-form.html">
     
     <style>
-        html, body {
+        html,
+        body {
             font-family: Arial, sans-serif;
         }
     </style>
@@ -22,8 +24,8 @@
     
 <h4>Demo form</h4>
 
-<polymer-element name="demo-form">
-<template>
+<dom-module name="demo-form">
+    
 <style>
 odm-validating-form {
     display: block;
@@ -35,58 +37,89 @@ input.invalid {
     border: 1px solid #f33;
 }
 </style>
+
+<template>
 <odm-validating-form id="form"
-                     inputSelector="paper-input-decorator,input:not([is])"
-                     submitSelector="#submitBtn"
-                     invalidClass="invalid"
-                     on-submit="{{ formSubmit }}">
+                     input-selector="paper-input-container,input"
+                     submit-selector="#submitBtn"
+                     invalid-class="invalid"
+                     on-submit="formSubmit">
     
-    <paper-input-decorator label="Required field" error="Please enter some text" disabled?="{{ $.form.disabled }}">
-        <input is="core-input" type="text" value="" required readonly?="{{ $.form.disabled }}">
-    </paper-input-decorator>
+    <p>
+        <paper-input-container always-float-label attr-for-value="value" disabled$="[[ formDisabled ]]">
+            <label>Required field</label>
+            <input is="iron-input" type="text" value="" required readonly$="[[ formDisabled ]]">
+            <paper-input-error>Please enter some text</paper-input-error>
+        </paper-input-container>
+    </p>
     
-    <paper-input-decorator label="Optional field" disabled?="{{ $.form.disabled }}">
-        <input is="core-input" type="text" value="" readonly?="{{ $.form.disabled }}" flex>
-    </paper-input-decorator>
+    <p>
+        <paper-input-container always-float-label attr-for-value="value" disabled$="[[ formDisabled ]]">
+            <label>Optional field</label>
+            <input is="iron-input" type="text" value="" readonly$="[[ formDisabled ]]" flex>
+        </paper-input-container>
+    </p>
     
-    <paper-input-decorator label="Required number field" error="Please enter a number" disabled?="{{ $.form.disabled }}">
-        <input is="core-input" type="text" value="" pattern="^\d+$" required readonly?="{{ $.form.disabled }}">
-    </paper-input-decorator>
+    <p>
+        <paper-input-container always-float-label attr-for-value="value" disabled$="[[ formDisabled ]]">
+            <label>Required number field</label>
+            <input is="iron-input" type="text" value="" pattern="^\d+$" required readonly$="[[ formDisabled ]]">
+            <paper-input-error>Please enter a number</paper-input-error>
+        </paper-input-container>
+    </p>
     
     <p>
         <label>Plain input</label>
-        <input type="text" value="" placeholder="Please enter 'OK'" pattern="OK" required readonly?="{{ $.form.disabled }}">
+        <input type="text" value="" placeholder="Please enter 'ok'" pattern="ok" required readonly$="[[ formDisabled ]]">
     </p>
     
     <p>
-        <button id="submitBtn" disabled?="{{ $.form.disabled }}">Submit</button>
-        <button id="clearBtn" on-tap="{{ clearErrors }}" disabled?="{{ $.form.disabled }}">Clear errors</button>
-        <button id="enableBtn" on-tap="{{ enableForm }}" disabled?="{{ !$.form.disabled }}">Re-enable form</button>
+        <button id="submitBtn" disabled$="[[ formDisabled ]]">Submit</button>
+        <button id="clearBtn" on-tap="clearErrors" disabled$="[[ formDisabled ]]">Clear errors</button>
+        <button id="enableBtn" on-tap="enableForm" disabled$="[[ !formDisabled ]]">Enable form</button>
     </p>
     
 </odm-validating-form>
-    
 </template>
-<script>
-Polymer({
-    
-    formSubmit: function(){
-        alert('Form submitted');
-    },
-    
-    clearErrors: function(){
-        this.$.form.clearErrors();
-    },
-    
-    enableForm: function(){
-        this.$.form.disabled = false;
-    }
-    
-});
-</script>
-</polymer-element>
+
+</dom-module>
 
 <demo-form></demo-form>
+
+<script>
+window.addEventListener('WebComponentsReady', function(){
+    
+    Polymer({
+        is: 'demo-form',
+
+        properties: {
+            formDisabled: {
+                type: Boolean,
+                value: false
+            }
+        },
+
+        formSubmit: function(e){
+            this.formDisabled = true;
+            alert('submitted');
+        },
+
+        clearErrors: function(){
+            if (!this.formDisabled) {
+                this.$.form.clearErrors();
+            }
+        },
+
+        enableForm: function(){
+            if (this.formDisabled) {
+                this.$.form.disabled = this.formDisabled = false;
+            }
+        }
+
+    });
+    
+}, false);
+</script>
 
 </body>
 </html>
